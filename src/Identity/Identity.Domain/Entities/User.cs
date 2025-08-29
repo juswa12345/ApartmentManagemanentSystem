@@ -3,12 +3,13 @@ using Identity.Domain.ValueObjects;
 
 namespace Identity.Domain.Entities
 {
-    public class User : Entity
+    public class User
     {
         public UserId Id { get; set; }
         public string FullName { get; private set; }
         public string Email { get; private set; }
         public string PasswordHash { get; private set; }
+        public List<string> Roles { get; private set; } = [];
 
 
         private User(UserId id, string fullName, string email, string passwordHash)
@@ -20,11 +21,11 @@ namespace Identity.Domain.Entities
         }
 
         //factory method to create a new user
-        public static User Create(string firstname, string lastName, string email, string passwordHash)
+        public static User Create(string firstname, string lastName, string email, string passwordHash, List<string> role)
         {
             string fullName = $"{firstname} {lastName}";
 
-            var user = new User(new UserId(Guid.NewGuid()), fullName, email, passwordHash);
+            var user = new User(new UserId(Guid.NewGuid()), fullName, email, passwordHash) { Roles = role};
             //user.RaiseDomainEvent(new UserCreatedEvent(user));
 
             return user;

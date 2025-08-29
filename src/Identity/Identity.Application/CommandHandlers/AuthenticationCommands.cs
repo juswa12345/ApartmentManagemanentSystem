@@ -1,21 +1,25 @@
 ﻿using ApartmentManagementSystem.Contracts.Services;
+using AutoMapper;
+using Identity.Application.Commands;
+using Identity.Application.Repositories;
 using Identity.Application.Response;
 using Identity.Application.Services;
 using Identity.Domain.Entities;
 using Identity.Domain.Repositories;
-using Identity.Domain.ValueObjects;
 
 
-namespace Identity.Application.Commands
+namespace Identity.Application.CommandHandlers
 {
     public class AuthenticationCommands : IAuthenticationCommands
     {
+        private readonly IMapper _mapper;
         private readonly IPasswordService _passwordService;
         private readonly ITokenService _tokenService;
         private readonly IUserRepository _userRepository;
         private readonly IDomainEventPublisher _publisher;
 
         public AuthenticationCommands(
+            IMapper mapper,
             IPasswordService passwordService,
             ITokenService tokenService,
             IUserRepository userRepository,
@@ -24,6 +28,7 @@ namespace Identity.Application.Commands
             _tokenService = tokenService;
             _userRepository = userRepository;
             _publisher = publisher;
+            _mapper = mapper;
             _passwordService = passwordService;
         }
 
@@ -56,7 +61,7 @@ namespace Identity.Application.Commands
             };
         }
 
-        public async Task<AuthenticationResponse> RegisterAsync(string firstName, string lastName, string email, string password)
+        public async Task<AuthenticationResponse> RegisterAsync(string firstName, string lastName, string email, string password, List<string> roleId)
         {
             //Check if user already exists
             User? existingUser = await _userRepository.GetByEmailAsync(email);
@@ -66,24 +71,16 @@ namespace Identity.Application.Commands
                 {
                     IsSuccess = false,
                     Message = "User already exists with this email."
-                };
-            }
+                };            }
             //Create Password Hash
             string passwordHash = _passwordService.HashPassword(email, password);
 
-            Role role = new Role
-            {
-                Id = new RoleId(Guid.NewGuid()),
-                RoleName = "Admin"
-            };
-
             //Add to Database
-            User user = User.Create(firstName, lastName, email, passwordHash);
+            User user = User.Create(firstName, lastName, email, passwordHash, roleId);
             await _userRepository.AddAsync(user);
 
             await _userRepository.SaveChangesAsync(default);
 
-            await _publisher.PublishAsync(user.DomainEvents, default);
             //Token Generation
             string accessToken = _tokenService.GenerateToken(user);
 
@@ -92,7 +89,8 @@ namespace Identity.Application.Commands
             {
                 IsSuccess = true,
                 Message = "User registered successfully.",
-                AccessToken = accessToken
+                AccessToken = accessToken,
+                User = _mapper.Map<UserResponse>(user),
             };
         }
     }

@@ -22,12 +22,19 @@ namespace Identity.Infrastructure.Services
         public string GenerateToken(User user)
         {
 
-
             List<Claim> claims = new()
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
 
             };
+
+            if (user.Roles is not null)
+            {
+                foreach (var role in user.Roles.Where(r => !string.IsNullOrWhiteSpace(r)))
+                {
+                    claims.Add(new Claim(ClaimTypes.Role, role));
+                }
+            }
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Settings.Key));
 

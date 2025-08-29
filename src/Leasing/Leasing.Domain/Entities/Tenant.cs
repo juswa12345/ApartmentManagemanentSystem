@@ -10,7 +10,7 @@ namespace Leasing.Domain.Entities
     public class Tenant
     {
         public TenantId Id { get; set; }
-        public PersonName TenantName { get; set; }
+        public string TenantName { get; set; }
 
         public DateTime DateOfBirth { get; set; }
 

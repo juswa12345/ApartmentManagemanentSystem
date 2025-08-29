@@ -2,7 +2,12 @@ using ApartmentManagementSystem.Contracts.Services;
 using Identity.Application;
 using Identity.Controller;
 using Identity.Infrastructure;
+using Leasing.Application;
+using Leasing.Infrastructure;
 using Microsoft.OpenApi.Models;
+using Property.Application;
+using Property.Controller;
+using Property.Infrastructure;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,7 +15,10 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.AddControllers()
-    .AddApplicationPart(typeof(AuthenticationController).Assembly);
+    .AddApplicationPart(typeof(AccountsController).Assembly)
+    .AddApplicationPart(typeof(RolesController).Assembly)
+    .AddApplicationPart(typeof(BuildingsController).Assembly)
+    .AddApplicationPart(typeof(UnitsController).Assembly);
 
 builder.Services.AddOpenApi(options =>
 {
@@ -50,19 +58,29 @@ builder.Services.AddOpenApi(options =>
     });
 });
 
-
+//Identity
 builder.Services.AddIdentityApplication();
 builder.Services.AddIdentityInfrastructure(builder.Configuration);
+
+
+//Leasing
+builder.Services.AddLeasingApplication();
+builder.Services.AddLeasingInfrastructure(builder.Configuration);
+
+//Property
+builder.Services.AddPropertyApplication();
+builder.Services.AddPropertyInfrastructure(builder.Configuration);
 
 builder.Services.AddMediatR(cfg =>
 {
     cfg.RegisterServicesFromAssembly(typeof(Identity.Application.AssemblyReference).Assembly);
+    cfg.RegisterServicesFromAssembly(typeof(Property.Application.AssemblyReference).Assembly);
 });
 
+builder.Services.AddAutoMapper(_ => { }, AppDomain.CurrentDomain.GetAssemblies());
 
 builder.Services.AddScoped<IEventBus, EventBus>();
 builder.Services.AddScoped<IDomainEventPublisher, DomainEventPublisher>();
-
 
 var app = builder.Build();
 

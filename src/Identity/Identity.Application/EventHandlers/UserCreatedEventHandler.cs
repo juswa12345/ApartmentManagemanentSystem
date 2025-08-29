@@ -16,14 +16,18 @@ namespace Identity.Application.EventHandlers
 
         public async Task Handle(UserCreatedEvent notification, CancellationToken cancellationToken)
         {
-            //Side effect 
-            //Email
-            //Logs
-            //OTP 
             var integrationEvent = new UserCreatedIntegrationEvent(
-                notification.User.Id.Value,
-                notification.User.Email,
-                notification.User.FullName);
+                notification.Account.Id.Value,
+                notification.Account.FullName.FirstName,
+                notification.Account.FullName.LastName,
+                notification.Account.Email,
+                notification.Account.ContactNumber,
+                (int)notification.Account.Gender,
+                notification.Account.Age,
+                notification.Account.Address.Street,
+                notification.Account.Address.City,
+                notification.Account.Address.State,
+                notification.Account.Address.ZipCode);
 
             await _eventBus.PublishAsync(integrationEvent, cancellationToken);
         }

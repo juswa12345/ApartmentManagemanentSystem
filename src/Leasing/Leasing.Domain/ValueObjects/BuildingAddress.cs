@@ -6,8 +6,5 @@ using System.Threading.Tasks;
 
 namespace Leasing.Domain.ValueObjects
 {
-    public record PersonName(string FirstName, string LastName)
-    {
-        public string FullName => $"{FirstName} {LastName}";
-    }
+    public record BuildingAddress(string Street, string City, string State, string ZipCode);
 }

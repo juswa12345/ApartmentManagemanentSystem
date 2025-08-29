@@ -1,11 +1,20 @@
-﻿using Identity.Domain.ValueObjects;
-
-namespace Identity.Domain.Entities
+﻿namespace Identity.Domain.Entities
 {
     public class Role
     {
-        public RoleId Id { get; set; }
+        public Guid Id { get; set; }
+        public string Name { get; set; } = string.Empty;
 
-        public string RoleName { get; set; }
+        private Role(Guid id, string name)
+        {         
+            Id = id;
+            Name = name;
+
+        }
+
+        public static Role Create(string name)
+        {
+            return new Role(Guid.NewGuid(), name);
+        }
     }
 }

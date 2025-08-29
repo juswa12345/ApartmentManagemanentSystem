@@ -1,8 +1,10 @@
-﻿using ApartmentManagementSystem.Contracts.Services;
+﻿using Identity.Application.Queries;
+using Identity.Application.Repositories;
 using Identity.Application.Services;
 using Identity.Domain.Repositories;
 using Identity.Infrastructure.Data;
 using Identity.Infrastructure.Data.Repositories;
+using Identity.Infrastructure.QueryHandlers;
 using Identity.Infrastructure.Services;
 using Identity.Infrastructure.Settings;
 using Microsoft.EntityFrameworkCore;
@@ -49,10 +51,15 @@ namespace Identity.Infrastructure
 
             //Repositories
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IAccountRepository, AccountRepository>();
+            services.AddScoped<IRoleRepository, RoleRepository>();
 
             //Services
             services.AddScoped<IPasswordService, PasswordService>();
             services.AddScoped<ITokenService, TokenService>();
+
+            //Queries
+            services.AddScoped<IAccountQueries, AccountQueries>();
 
 
             return services;

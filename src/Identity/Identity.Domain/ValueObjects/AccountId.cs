@@ -1,4 +1,4 @@
 ﻿namespace Identity.Domain.ValueObjects
 {
-    public record RoleId (Guid Value);
+    public record AccountId(Guid Value);
 }

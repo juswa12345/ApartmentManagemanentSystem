@@ -5,5 +5,7 @@
         public bool IsSuccess { get; set; }
         public string? AccessToken { get; set; }
         public string? Message { get; set; }
+
+        public UserResponse? User { get; set; }
     }
 }

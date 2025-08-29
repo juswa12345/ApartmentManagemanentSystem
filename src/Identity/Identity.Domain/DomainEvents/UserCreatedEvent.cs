@@ -3,5 +3,8 @@ using Identity.Domain.Entities;
 
 namespace Identity.Domain.DomainEvents
 {
-    public record UserCreatedEvent(User User) : IDomainEvent;
+    public record UserCreatedEvent(Account Account) : IDomainEvent
+    {
+
+    };
 }
