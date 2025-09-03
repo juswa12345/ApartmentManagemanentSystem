@@ -8,24 +8,20 @@ namespace Leasing.Infrastructure.MappingProfile
     {
         public BuildingMappingProfile(){
 
-            CreateMap<Building, BuildingResponse>()
-                .ForMember(dest => dest.BuildingAddress, opt => opt.MapFrom(src => $"{src.BuildingAddress.Street} {src.BuildingAddress.City}, {src.BuildingAddress.State}"))
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id.Value));
-
-
-            CreateMap<Unit, UnitsResponse>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id.Value))
-                .ForMember(dest => dest.UnitNumber, opt => opt.MapFrom(src => src.UnitNumber))
-                .ForMember(dest => dest.FloorNumber, opts => opts.MapFrom(src => src.Floor))
-                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => (int)src.Status));
-
             CreateMap<Unit, UnitResponse>().ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id.Value));
 
-
-            CreateMap<Building, BuildingResp>()
+            CreateMap<Tenant, TenantReponse>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id.Value))
-                .ForMember(dest => dest.BuildingNumber, opt => opt.MapFrom(src => src.BuildingNumber))
-                .ForMember(dest => dest.BuildingName, opt => opt.MapFrom(src => src.Name));
+                .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => $"{src.TenantName.FirstName} {src.TenantName.LastName}"))
+                .ForMember(dest => dest.Contracts, opt => opt.MapFrom(src => src.LeaseRecords));
+
+
+            CreateMap<LeasingRecord, LeaseResponse>()
+                .ForMember(dest => dest.unitId, opt => opt.MapFrom(src => src.UnitId.Value))
+                .ForMember(dest => dest.UnitNumber, opt => opt.MapFrom(src => src.Unit.UnitNumber))
+                .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => src.Term.Start))
+                .ForMember(dest => dest.unitId, opt => opt.MapFrom(src => src.Term.End));
+
         }
     }
 }

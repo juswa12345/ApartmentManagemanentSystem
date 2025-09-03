@@ -16,8 +16,13 @@ namespace Leasing.Infrastructure.Data
                 .ApplyConfigurationsFromAssembly(typeof(LeasingDBContext).Assembly);
             base.OnModelCreating(modelBuilder);
         }
-
-        public DbSet<Building> Buildings { get; set; }
         public DbSet<Unit>  Units { get; set; }
+
+        public DbSet<Tenant> Tenants { get; set; }
+
+        public DbSet<LeasingRecord> LeasingRecords { get; set; }
+
+        public DbSet<Owner> Owners { get; set; }
+
     }
 }

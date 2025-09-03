@@ -86,6 +86,29 @@ namespace Property.Infrastructure.Migrations
                     b.ToTable("Owners", "Property");
                 });
 
+            modelBuilder.Entity("Property.Domain.Entities.PropertyOwnership", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("DateOwned")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("OwnerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("UnitId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OwnerId");
+
+                    b.HasIndex("UnitId");
+
+                    b.ToTable("PropertyOwnerships", "Property");
+                });
+
             modelBuilder.Entity("Property.Domain.Entities.Unit", b =>
                 {
                     b.Property<Guid>("Id")
@@ -97,6 +120,9 @@ namespace Property.Infrastructure.Migrations
                     b.Property<DateTimeOffset?>("CreatedAt")
                         .HasColumnType("datetimeoffset");
 
+                    b.Property<int?>("CurrentOccupancy")
+                        .HasColumnType("int");
+
                     b.Property<int>("Floor")
                         .HasColumnType("int");
 
@@ -105,9 +131,6 @@ namespace Property.Infrastructure.Migrations
 
                     b.Property<int?>("OccupancyLimit")
                         .HasColumnType("int");
-
-                    b.Property<Guid>("OwnerId")
-                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
@@ -124,14 +147,12 @@ namespace Property.Infrastructure.Migrations
 
                     b.HasIndex("BuildingId");
 
-                    b.HasIndex("OwnerId");
-
                     b.ToTable("Units", "Property");
                 });
 
             modelBuilder.Entity("Property.Domain.Entities.Building", b =>
                 {
-                    b.OwnsOne("Property.Domain.ValueObjects.BuildingAddress", "BuildingAddress", b1 =>
+                    b.OwnsOne("ApartmentManagementSystem.SharedKernel.ValueObjects.Address", "BuildingAddress", b1 =>
                         {
                             b1.Property<Guid>("BuildingId")
                                 .HasColumnType("uniqueidentifier");
@@ -166,7 +187,28 @@ namespace Property.Infrastructure.Migrations
 
             modelBuilder.Entity("Property.Domain.Entities.Owner", b =>
                 {
-                    b.OwnsOne("Property.Domain.ValueObjects.Address", "Address", b1 =>
+                    b.OwnsOne("ApartmentManagementSystem.SharedKernel.ValueObjects.PersonName", "FullName", b1 =>
+                        {
+                            b1.Property<Guid>("OwnerId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<string>("FirstName")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<string>("LastName")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.HasKey("OwnerId");
+
+                            b1.ToTable("Owners", "Property");
+
+                            b1.WithOwner()
+                                .HasForeignKey("OwnerId");
+                        });
+
+                    b.OwnsOne("ApartmentManagementSystem.SharedKernel.ValueObjects.Address", "Address", b1 =>
                         {
                             b1.Property<Guid>("OwnerId")
                                 .HasColumnType("uniqueidentifier");
@@ -195,32 +237,30 @@ namespace Property.Infrastructure.Migrations
                                 .HasForeignKey("OwnerId");
                         });
 
-                    b.OwnsOne("Property.Domain.ValueObjects.PersonName", "FullName", b1 =>
-                        {
-                            b1.Property<Guid>("OwnerId")
-                                .HasColumnType("uniqueidentifier");
-
-                            b1.Property<string>("FirstName")
-                                .IsRequired()
-                                .HasColumnType("nvarchar(max)");
-
-                            b1.Property<string>("LastName")
-                                .IsRequired()
-                                .HasColumnType("nvarchar(max)");
-
-                            b1.HasKey("OwnerId");
-
-                            b1.ToTable("Owners", "Property");
-
-                            b1.WithOwner()
-                                .HasForeignKey("OwnerId");
-                        });
-
                     b.Navigation("Address")
                         .IsRequired();
 
                     b.Navigation("FullName")
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Property.Domain.Entities.PropertyOwnership", b =>
+                {
+                    b.HasOne("Property.Domain.Entities.Owner", "Owner")
+                        .WithMany("PropertiesOwned")
+                        .HasForeignKey("OwnerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Property.Domain.Entities.Unit", "Unit")
+                        .WithMany()
+                        .HasForeignKey("UnitId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Owner");
+
+                    b.Navigation("Unit");
                 });
 
             modelBuilder.Entity("Property.Domain.Entities.Unit", b =>
@@ -231,15 +271,7 @@ namespace Property.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Property.Domain.Entities.Owner", "Owner")
-                        .WithMany("Units")
-                        .HasForeignKey("OwnerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Building");
-
-                    b.Navigation("Owner");
                 });
 
             modelBuilder.Entity("Property.Domain.Entities.Building", b =>
@@ -249,7 +281,7 @@ namespace Property.Infrastructure.Migrations
 
             modelBuilder.Entity("Property.Domain.Entities.Owner", b =>
                 {
-                    b.Navigation("Units");
+                    b.Navigation("PropertiesOwned");
                 });
 #pragma warning restore 612, 618
         }

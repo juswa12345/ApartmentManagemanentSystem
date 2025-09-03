@@ -11,39 +11,24 @@ namespace Property.Infrastructure.QueryHandler
     public class BuildingQueries : IBuildingQueries
     {
         private readonly PropertyDBContext _context;
-        private readonly IMapper _mapper;
 
-        public BuildingQueries(PropertyDBContext context, IMapper mapper)
+        public BuildingQueries(PropertyDBContext context)
         {
             _context = context;
-            _mapper = mapper;
         }
-        public async Task<BuildingResponse?> GetBuildingByIdAsync(Guid id)
+        public async Task<Building?> GetBuildingByIdAsync(Guid id)
         {
-            var building = await _context.Buildings.Where(b => b.Id == new BuildingId(id)).Include(b => b.Units).FirstOrDefaultAsync();
-
-            return _mapper.Map<BuildingResponse>(building);
+            return await _context.Buildings.Where(b => b.Id == new BuildingId(id)).Include(b => b.Units).FirstOrDefaultAsync();
         }
 
-        public async Task<List<BuildingResponse>> GetBuildingsAsync()
+        public async Task<List<Building>> GetBuildingsAsync()
         {
             var buildings = await _context.Buildings.Include(b => b.Units).ToListAsync();
 
             if (buildings.Count <= 0)
                 return [];
 
-            return _mapper.Map<List<BuildingResponse>>(buildings);
-        }
-
-        public async Task<BuildingResponse?> UpdateBuildAsync(Building building)
-        {
-            _context.Buildings.Update(building);
-
-            await _context.SaveChangesAsync();
-
-            var updatedBuilding = await _context.Buildings.Where(b => b.Id == building.Id).Include(b => b.Units).FirstOrDefaultAsync();
-
-            return _mapper.Map<BuildingResponse>(updatedBuilding);
+            return buildings;
         }
     }
 }

@@ -15,24 +15,13 @@ namespace Property.Infrastructure.Data.Configuration
                 .HasConversion(u => u.Value, value => new UnitId(value));
 
             unit.Property(u => u.BuildingId)
-                .HasConversion(id => id.Value, value => new BuildingId(value))
-                .IsRequired();
+                .HasConversion(b => b.Value, value => new BuildingId(value));
 
             unit.HasOne(u => u.Building)
-                .WithMany(b => b.Units)
-                .HasForeignKey(u => u.BuildingId)
-                .IsRequired()
-                .OnDelete(DeleteBehavior.Cascade);
-
-            unit.Property(u => u.OwnerId)
-                .HasConversion(id => id.Value, value => new OwnerId(value))
-                .IsRequired();
-
-            unit.HasOne(u => u.Owner)
-                .WithMany(b => b.Units)
-                .HasForeignKey(u => u.OwnerId)
-                .IsRequired()
-                .OnDelete(DeleteBehavior.Cascade);
+               .WithMany(b => b.Units)
+               .HasForeignKey(u => u.BuildingId)
+               .IsRequired()
+               .OnDelete(DeleteBehavior.Cascade);
 
             unit.Property(u => u.UnitNumber)
                 .IsRequired()

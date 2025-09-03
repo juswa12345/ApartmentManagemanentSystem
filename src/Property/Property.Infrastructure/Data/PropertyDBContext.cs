@@ -22,5 +22,7 @@ namespace Property.Infrastructure.Data
 
         public DbSet<Owner> Owners { get; set; }
 
-        }
+        public DbSet<PropertyOwnership> PropertyOwnerships { get; set; }
+
+    }
 }

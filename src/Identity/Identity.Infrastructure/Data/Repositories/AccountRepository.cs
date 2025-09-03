@@ -15,10 +15,5 @@ namespace Identity.Infrastructure.Data.Repositories
         {
             await _context.Accounts.AddAsync(tenant);
         }
-
-        public async Task SaveChangesAsync(CancellationToken cancellationToken)
-        {
-            await _context.SaveChangesAsync(cancellationToken);
-        }
     }
 }

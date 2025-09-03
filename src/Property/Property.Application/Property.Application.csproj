@@ -13,8 +13,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\ApartmentManagementSystem.Contracts\ApartmentManagementSystem.Contracts.csproj" />
     <ProjectReference Include="..\..\identity\Identity.IntegrationEvent\Identity.IntegrationEvent.csproj" />
     <ProjectReference Include="..\Property.Domain\Property.Domain.csproj" />
+    <ProjectReference Include="..\Property.IntegrationEvent\Property.IntegrationEvent.csproj" />
   </ItemGroup>
 
 </Project>

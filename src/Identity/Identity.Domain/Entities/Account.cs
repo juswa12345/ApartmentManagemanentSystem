@@ -1,6 +1,7 @@
 ﻿using ApartmentManagementSystem.SharedKernel.Entities;
+using ApartmentManagementSystem.SharedKernel.Enums;
+using ApartmentManagementSystem.SharedKernel.ValueObjects;
 using Identity.Domain.DomainEvents;
-using Identity.Domain.Enums;
 using Identity.Domain.ValueObjects;
 
 namespace Identity.Domain.Entities
@@ -34,6 +35,27 @@ namespace Identity.Domain.Entities
             PersonName fullName,
             Address address,
             string email,
+            string contactNumber,
+            int age,
+            Gender gender)
+        {
+
+            var account = new Account(new AccountId(Guid.NewGuid()), email, contactNumber, age)
+            {
+                FullName = fullName,
+                Address = address,
+                Gender = gender,
+                UserId = userId
+            };
+
+            return account;
+        }
+
+        public static Account CreateOwner(
+            UserId userId,
+            PersonName fullName,
+            Address address,
+            string email,
             string contactNumber, 
             int age,
             Gender gender)
@@ -47,7 +69,30 @@ namespace Identity.Domain.Entities
                 UserId = userId
             };
 
-            account.RaiseDomainEvent(new UserCreatedEvent(account));
+            account.RaiseDomainEvent(new OwnerCreatedEvent(account));
+
+            return account;
+        }
+
+        public static Account CreateTenant(
+          UserId userId,
+          PersonName fullName,
+          Address address,
+          string email,
+          string contactNumber,
+          int age,
+          Gender gender)
+        {
+
+            var account = new Account(new AccountId(Guid.NewGuid()), email, contactNumber, age)
+            {
+                FullName = fullName,
+                Address = address,
+                Gender = gender,
+                UserId = userId
+            };
+
+            account.RaiseDomainEvent(new TenantCreatedEvent(account));
 
             return account;
         }

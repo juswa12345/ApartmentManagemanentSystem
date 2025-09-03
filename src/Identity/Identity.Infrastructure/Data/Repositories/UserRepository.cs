@@ -33,10 +33,5 @@ namespace Identity.Infrastructure.Data.Repositories
         {
             return await _context.Users.ToListAsync();
         }
-
-        public async Task SaveChangesAsync(CancellationToken cancellationToken)
-        {
-            await _context.SaveChangesAsync(cancellationToken);
-        }
     }
 }

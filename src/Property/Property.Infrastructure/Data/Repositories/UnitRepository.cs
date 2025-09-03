@@ -19,18 +19,25 @@ namespace Property.Infrastructure.Data.Repositories
             await _context.Units.AddAsync(unit);
         }
 
-        public async Task DeleteUnitAsync(Unit unit)
+        public Task DeleteUnitAsync(Unit unit)
         {
             _context.Units.Remove(unit);
+
+            return Task.CompletedTask;
         }
 
         public Task<Unit?> GetUnitByIdAsync(UnitId unitId)
         {
-            var unit = _context.Units.Include(u => u.Building).Include(u => u.Owner).FirstOrDefaultAsync();
-
+            var unit = _context.Units.FirstOrDefaultAsync();
 
             return unit;
 
+        }
+
+        public Task UpdateUnitAsync(Unit unit)
+        {
+            _context.Units.Update(unit);
+            return Task.CompletedTask;
         }
     }
 }

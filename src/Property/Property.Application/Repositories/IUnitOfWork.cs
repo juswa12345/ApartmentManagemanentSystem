@@ -8,7 +8,9 @@ namespace Property.Application.Repositories
 
         IUnitReposirtory UnitReposirtory { get; }
 
-        IOwnerRepository OwnerRepository { get; }
+        IOwnerRespository OwnerRepository { get; }
+
+        IOwnershipRespository OwnershipRepository { get; }
 
         Task SaveChangesAsync(CancellationToken cancellationToken);
     }

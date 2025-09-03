@@ -21,11 +21,6 @@ namespace Property.Infrastructure.MappingProfile
 
             CreateMap<Unit, UnitResponse>().ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id.Value));
 
-
-            CreateMap<Building, BuildingResp>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id.Value))
-                .ForMember(dest => dest.BuildingNumber, opt => opt.MapFrom(src => src.BuildingNumber))
-                .ForMember(dest => dest.BuildingName, opt => opt.MapFrom(src => src.Name));
         }
     }
 }

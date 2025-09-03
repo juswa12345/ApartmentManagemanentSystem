@@ -5,9 +5,7 @@ namespace Property.Application.Queries
 {
     public interface IBuildingQueries
     {
-        Task<BuildingResponse?> GetBuildingByIdAsync(Guid id);
-        Task<List<BuildingResponse>> GetBuildingsAsync();
-
-        Task<BuildingResponse?> UpdateBuildAsync(Building building);
+        Task<Building?> GetBuildingByIdAsync(Guid id);
+        Task<List<Building>> GetBuildingsAsync();
     }
 }

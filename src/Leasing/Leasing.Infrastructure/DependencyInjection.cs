@@ -21,15 +21,16 @@ namespace Leasing.Infrastructure
                     sql => sql.MigrationsHistoryTable("_EFMigrationsHistory", "Leasing"));
             });
 
-
             //Repositories
-            services.AddScoped<IBuildingRepository, BuildingRepository>();
             services.AddScoped<IUnitReposirtory, UnitRepository>();
+            services.AddScoped<ITenantRepository, TenantRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddScoped<IOwnerRepository, OwnerRepository>();   
+            services.AddScoped<ILeasingRepository, LeasingRepository>();
 
             //Queries
-            services.AddScoped<IBuildingQueries, BuildingQueries>();
             services.AddScoped<IUnitQueries, UnitQueries>();
+            services.AddScoped<ITenantQueries, TenantQueries>();
 
 
             return services;

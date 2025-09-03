@@ -14,15 +14,9 @@ namespace Leasing.Infrastructure.Data.Configuration
             unit.Property(u => u.Id)
                 .HasConversion(u => u.Value, value => new UnitId(value));
 
-            unit.Property(u => u.BuildingId)
-                .HasConversion(id => id.Value, value => new BuildingId(value))
-                .IsRequired();
-
-            unit.HasOne(u => u.Building)
-                .WithMany(b => b.Units)
-                .HasForeignKey(u => u.BuildingId)
-                .IsRequired()
-                .OnDelete(DeleteBehavior.Cascade);
+            unit.Property(u => u.BuildingName)
+               .IsRequired()
+               .HasMaxLength(50);
 
             unit.Property(u => u.UnitNumber)
                 .IsRequired()

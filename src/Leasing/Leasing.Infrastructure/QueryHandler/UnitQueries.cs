@@ -19,14 +19,14 @@ namespace Leasing.Infrastructure.QueryHandler
 
         public async Task<UnitResponse> GetUnitByIdAsync(Guid id)
         {
-            var unit = await _context.Units.Include(b => b.Building).FirstOrDefaultAsync();
+            var unit = await _context.Units.FirstOrDefaultAsync();
 
             return _mapper.Map<UnitResponse>(unit);
         }
 
         public async Task<List<UnitResponse>> GetUnitsAsync()
         {
-            var units = await _context.Units.Include(b => b.Building).ToListAsync();
+            var units = await _context.Units.ToListAsync();
 
             if (units.Count <= 0)
                 return [];

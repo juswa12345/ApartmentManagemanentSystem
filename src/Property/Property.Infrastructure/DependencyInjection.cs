@@ -26,11 +26,13 @@ namespace Property.Infrastructure
             services.AddScoped<IBuildingRepository, BuildingRepository>();
             services.AddScoped<IUnitReposirtory, UnitRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
-            services.AddScoped<IOwnerRepository, OwnerRepository>();
+            services.AddScoped<IOwnerRespository, OwnerRepository>();
+            services.AddScoped<IOwnershipRespository, OwnershipRepository>();
 
             //Queries
             services.AddScoped<IBuildingQueries, BuildingQueries>();
             services.AddScoped<IUnitQueries, UnitQueries>();
+            services.AddScoped<IOwnerQueries, OwnerQueries>();
 
 
             return services;

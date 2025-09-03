@@ -9,6 +9,8 @@ namespace Property.Application.Repositories
 
         Task<Unit?> GetUnitByIdAsync(UnitId unitId);
 
+        Task UpdateUnitAsync(Unit unit);
+
         Task DeleteUnitAsync(Unit unit);
     }
 }

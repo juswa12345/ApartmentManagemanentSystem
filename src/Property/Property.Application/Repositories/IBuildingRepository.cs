@@ -8,5 +8,6 @@ namespace Property.Application.Repositories
         Task AddBuildingAsync(Building building);
         Task<Building?> GetBuildingByIdAsync(BuildingId buildingId);
         Task DeleteBuildingAsync(Building building);
+        Task UpdateBuildingAsync(Building building);
     }
 }

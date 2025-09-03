@@ -15,8 +15,6 @@ namespace Identity.Infrastructure.Data.Repositories
         public async Task CreateRoleAsync(Role role)
         {
             await _context.Roles.AddAsync(role);
-
-            await _context.SaveChangesAsync();
         }
 
         public async Task<Role?> GetRoleByIdAsync(Guid id)

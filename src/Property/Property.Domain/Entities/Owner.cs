@@ -1,4 +1,5 @@
-﻿using Property.Domain.Enums;
+﻿using ApartmentManagementSystem.SharedKernel.Enums;
+using ApartmentManagementSystem.SharedKernel.ValueObjects;
 using Property.Domain.ValueObjects;
 
 namespace Property.Domain.Entities
@@ -14,7 +15,8 @@ namespace Property.Domain.Entities
         public string ContactNumber { get; private set; }
         public DateTimeOffset? CreatedAt { get; private set; }
         public DateTimeOffset? UpdatedAt { get; private set; }
-        public List<Unit> Units { get; private set; } = [];
+        public List<PropertyOwnership> PropertiesOwned { get; set; } = [];
+
 
         private Owner(OwnerId id,string email, string contactNumber, int age) 
         {
@@ -39,6 +41,23 @@ namespace Property.Domain.Entities
                 Gender = gender, FullName = fullName, Address = address
             };
         }
-        
+
+        public void UpdateDetails(
+            PersonName fullName,
+            Address address,
+            string email,
+            string contactNumber,
+            int age
+        )
+        {
+            FullName = fullName;
+            Address = address;
+            Email = email == "" ? this.Email : email;
+            ContactNumber = contactNumber == "" ? this.ContactNumber : contactNumber;
+            Age = age == 1 ? this.Age : age;
+        }
+
+
+
     }
 }

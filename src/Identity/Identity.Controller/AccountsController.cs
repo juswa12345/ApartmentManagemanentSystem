@@ -36,30 +36,30 @@ namespace Identity.Controller
             return Ok(response);
         }
 
-        [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] Request.LoginRequest request)
-        {
-            var response = await _authenticationService.Login(request.Email, request.Password);
-            if (!response.IsSuccess)
-            {
-                return BadRequest(response);
-            }
-            return Ok(response);
+        //[HttpPost("login")]
+        //public async Task<IActionResult> Login([FromBody] Request.LoginRequest request)
+        //{
+        //    var response = await _authenticationService.Login(request.Email, request.Password);
+        //    if (!response.IsSuccess)
+        //    {
+        //        return BadRequest(response);
+        //    }
+        //    return Ok(response);
 
-        }
+        //}
 
-        [HttpGet("getAccounts")]
+        //[HttpGet("getAccounts")]
 
-        public async Task<ActionResult<List<AccountResponse>>> GetAccountsAsync()
-        {
-            var response = await _accountCommands.GetAccountsAsync();
+        //public async Task<ActionResult<List<AccountResponse>>> GetAccountsAsync()
+        //{
+        //    var response = await _accountCommands.GetAccountsAsync();
 
-            if (response.Count == 0)
-            {
-                return NotFound("No accounts found.");
-            }
+        //    if (response.Count == 0)
+        //    {
+        //        return NotFound("No accounts found.");
+        //    }
 
-            return Ok(response);
-        }
+        //    return Ok(response);
+        //}
     }
 }

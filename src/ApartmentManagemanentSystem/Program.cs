@@ -3,12 +3,15 @@ using Identity.Application;
 using Identity.Controller;
 using Identity.Infrastructure;
 using Leasing.Application;
+using Leasing.Controller;
+using Billing.Infrastructure;
 using Leasing.Infrastructure;
 using Microsoft.OpenApi.Models;
 using Property.Application;
 using Property.Controller;
 using Property.Infrastructure;
 using Scalar.AspNetCore;
+using Billing.Application;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +19,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers()
     .AddApplicationPart(typeof(AccountsController).Assembly)
+    .AddApplicationPart(typeof(LeasingsController).Assembly)
+    .AddApplicationPart(typeof(OwnershipsController).Assembly)
+    .AddApplicationPart(typeof(OwnersController).Assembly)
     .AddApplicationPart(typeof(RolesController).Assembly)
     .AddApplicationPart(typeof(BuildingsController).Assembly)
     .AddApplicationPart(typeof(UnitsController).Assembly);
@@ -71,10 +77,16 @@ builder.Services.AddLeasingInfrastructure(builder.Configuration);
 builder.Services.AddPropertyApplication();
 builder.Services.AddPropertyInfrastructure(builder.Configuration);
 
+//Billing
+builder.Services.AddBillingApplication();
+builder.Services.AddBillingInfrastructure(builder.Configuration);
+
 builder.Services.AddMediatR(cfg =>
 {
     cfg.RegisterServicesFromAssembly(typeof(Identity.Application.AssemblyReference).Assembly);
+    cfg.RegisterServicesFromAssembly(typeof(Leasing.Application.AssemblyReference).Assembly);
     cfg.RegisterServicesFromAssembly(typeof(Property.Application.AssemblyReference).Assembly);
+    cfg.RegisterServicesFromAssembly(typeof(Billing.Application.AssemblyReference).Assembly);
 });
 
 builder.Services.AddAutoMapper(_ => { }, AppDomain.CurrentDomain.GetAssemblies());
@@ -88,7 +100,7 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi(); 
     app.MapScalarApiReference(options => options
-        .WithTheme(ScalarTheme.Mars)
+        .WithTheme(ScalarTheme.Moon)
         .WithDarkMode()
     ); 
 }

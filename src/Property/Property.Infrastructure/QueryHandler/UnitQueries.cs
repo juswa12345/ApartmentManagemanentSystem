@@ -1,37 +1,27 @@
-﻿using AutoMapper;
+﻿using Microsoft.EntityFrameworkCore;
 using Property.Application.Queries;
-using Property.Application.Response;
+using Property.Domain.Entities;
 using Property.Infrastructure.Data;
-using Microsoft.EntityFrameworkCore;
 
 namespace Property.Infrastructure.QueryHandler
 {
     public class UnitQueries : IUnitQueries
     {
         private readonly PropertyDBContext _context;
-        private readonly IMapper _mapper;
 
-        public UnitQueries(PropertyDBContext context, IMapper mapper)
+        public UnitQueries(PropertyDBContext context)
         {
             _context = context;
-            _mapper = mapper;
         }
 
-        public async Task<UnitResponse> GetUnitByIdAsync(Guid id)
+        public async Task<Unit?> GetUnitByIdAsync(Guid id)
         {
-            var unit = await _context.Units.Include(b => b.Building).FirstOrDefaultAsync();
-
-            return _mapper.Map<UnitResponse>(unit);
+            return await _context.Units.FirstOrDefaultAsync();
         }
 
-        public async Task<List<UnitResponse>> GetUnitsAsync()
+        public async Task<List<Unit>> GetUnitsAsync()
         {
-            var units = await _context.Units.Include(b => b.Building).Include(b => b.Owner).ToListAsync();
-
-            if (units.Count <= 0)
-                return [];
-
-            return _mapper.Map<List<UnitResponse>>(units);
+            return await _context.Units.ToListAsync();
         }
     }
 }

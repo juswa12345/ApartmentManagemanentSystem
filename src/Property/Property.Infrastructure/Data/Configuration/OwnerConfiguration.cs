@@ -26,10 +26,6 @@ namespace Property.Infrastructure.Data.Configuration
                 a.Property(p => p.State);
                 a.Property(p => p.ZipCode);
             });
-
-
-            owner.Navigation(x => x.Units)
-                    .UsePropertyAccessMode(PropertyAccessMode.Field);
         }
     }
 }

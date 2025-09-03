@@ -53,6 +53,7 @@ namespace Identity.Infrastructure
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IAccountRepository, AccountRepository>();
             services.AddScoped<IRoleRepository, RoleRepository>();
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             //Services
             services.AddScoped<IPasswordService, PasswordService>();

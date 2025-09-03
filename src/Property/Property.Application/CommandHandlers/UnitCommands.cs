@@ -1,7 +1,9 @@
-﻿using AutoMapper;
+﻿using ApartmentManagementSystem.Contracts.Services;
+using AutoMapper;
 using FluentResults;
 using Property.Application.Commnds;
 using Property.Application.Errors;
+using Property.Application.Queries;
 using Property.Application.Repositories;
 using Property.Application.Response;
 using Property.Domain.Entities;
@@ -11,16 +13,20 @@ namespace Property.Application.CommandHandlers
 {
     internal class UnitCommands : IUnitCommands
     {
+        private readonly IDomainEventPublisher _publisher;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly IUnitQueries _unitQueries;
 
-        public UnitCommands(IUnitOfWork unitOfWork, IMapper mapper)
+        public UnitCommands(IDomainEventPublisher publisher, IUnitOfWork unitOfWork, IMapper mapper, IUnitQueries unitQueries)
         {
+            _publisher = publisher;
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _unitQueries = unitQueries;
         }
 
-        public async Task<Result<UnitResponse>> AddUnitAsync(Guid ownerId, Guid id, string unitNumber, int floor, double monthlyRent, int occupancy)
+        public async Task<Result<UnitResponse>> AddUnitAsync(Guid id, string unitNumber, int floor, double monthlyRent, int occupancy)
         {
             var building = await _unitOfWork.BuildingRepository.GetBuildingByIdAsync(new BuildingId(id));
 
@@ -29,17 +35,12 @@ namespace Property.Application.CommandHandlers
                 return Result.Fail(new EntityNotFoundError($"Build with ID: {id} is not Found"));
             }
 
-            var owner = await _unitOfWork.OwnerRepository.GetOwnerByIdAsync(new OwnerId(ownerId));
-
-            if(owner is null)
-            {
-                return Result.Fail(new EntityNotFoundError($"Owner with ID: {ownerId} is not Found"));
-            }
-
-            var unit = Unit.Create(owner, building, unitNumber, floor, monthlyRent, occupancy);
+            var unit = Unit.Create(building, unitNumber, floor, monthlyRent, occupancy);
 
             await _unitOfWork.UnitReposirtory.AddUnitAsync(unit);
             await _unitOfWork.SaveChangesAsync(default);
+
+            await _publisher.PublishAsync(unit.DomainEvents, default);
 
             return Result.Ok(_mapper.Map<UnitResponse>(unit));
         }
@@ -54,9 +55,38 @@ namespace Property.Application.CommandHandlers
             await _unitOfWork.SaveChangesAsync(cancellationToken);
         }
 
-        public Task<Unit> UpdateUnitAsync(Guid id, string buildingName, string street, string city, string state, string zip, int numberOfFloors, int yearBuilt, string? notes)
+        public async Task<UnitResponse> GetUnitAsync(Guid id)
         {
-            throw new NotImplementedException();
+            var unit = await _unitOfWork.UnitReposirtory.GetUnitByIdAsync(new UnitId(id));
+
+            if (unit is null)
+                throw new KeyNotFoundException($"Unit with ID: {id} is not Found");
+
+            return _mapper.Map<UnitResponse>(unit);
+        }
+
+        public async Task<List<UnitResponse>> GetUnitsAsync()
+        {
+            var units = await _unitQueries.GetUnitsAsync();
+
+            if (units.Count == 0)
+                return [];
+
+            return _mapper.Map<List<UnitResponse>>(units);
+        }
+
+        public async Task UpdateUnitAsync(Guid id, string unitNumber, int floor, int capacity, double monthlyRent)
+        {
+            var unit = await _unitOfWork.UnitReposirtory.GetUnitByIdAsync(new UnitId(id));
+
+            if (unit is null)
+                throw new KeyNotFoundException($"Unit with ID: {id} is not Found");
+
+            unit.Update(unitNumber, floor, monthlyRent, capacity);
+
+            await _unitOfWork.UnitReposirtory.UpdateUnitAsync(unit);
+
+            await _unitOfWork.SaveChangesAsync(default);
         }
     }
 }

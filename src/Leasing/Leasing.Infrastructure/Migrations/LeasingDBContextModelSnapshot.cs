@@ -23,37 +23,73 @@ namespace Leasing.Infrastructure.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Leasing.Domain.Entities.Building", b =>
+            modelBuilder.Entity("Leasing.Domain.Entities.LeasingRecord", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("BuildingNumber")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<Guid>("OwnerId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTimeOffset?>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Notes")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("NumberOfFloors")
+                    b.Property<int>("Status")
                         .HasColumnType("int");
 
-                    b.Property<DateTimeOffset?>("UpdatedAt")
-                        .HasColumnType("datetimeoffset");
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("YearBuilt")
-                        .HasColumnType("int");
+                    b.Property<Guid>("UnitId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Buildings", "Leasing");
+                    b.HasIndex("OwnerId");
+
+                    b.HasIndex("TenantId");
+
+                    b.HasIndex("UnitId");
+
+                    b.ToTable("LeasingRecords", "Leasing");
+                });
+
+            modelBuilder.Entity("Leasing.Domain.Entities.Owner", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PhoneNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Owners", "Leasing");
+                });
+
+            modelBuilder.Entity("Leasing.Domain.Entities.Tenant", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PhoneNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("UnitId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UnitId");
+
+                    b.ToTable("Tenants", "Leasing");
                 });
 
             modelBuilder.Entity("Leasing.Domain.Entities.Unit", b =>
@@ -61,11 +97,16 @@ namespace Leasing.Infrastructure.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("BuildingId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("BuildingName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<DateTimeOffset?>("CreatedAt")
                         .HasColumnType("datetimeoffset");
+
+                    b.Property<int>("CurrentOccupancy")
+                        .HasColumnType("int");
 
                     b.Property<int>("Floor")
                         .HasColumnType("int");
@@ -89,60 +130,155 @@ namespace Leasing.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("BuildingId");
-
                     b.ToTable("Units", "Leasing");
                 });
 
-            modelBuilder.Entity("Leasing.Domain.Entities.Building", b =>
+            modelBuilder.Entity("Leasing.Domain.Entities.LeasingRecord", b =>
                 {
-                    b.OwnsOne("Leasing.Domain.ValueObjects.BuildingAddress", "BuildingAddress", b1 =>
+                    b.HasOne("Leasing.Domain.Entities.Owner", "Owner")
+                        .WithMany()
+                        .HasForeignKey("OwnerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Leasing.Domain.Entities.Tenant", "Tenant")
+                        .WithMany("LeaseRecords")
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Leasing.Domain.Entities.Unit", "Unit")
+                        .WithMany("LeasingHistory")
+                        .HasForeignKey("UnitId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.OwnsOne("Leasing.Domain.ValueObjects.LeaseTerm", "Term", b1 =>
                         {
-                            b1.Property<Guid>("BuildingId")
+                            b1.Property<Guid>("LeasingRecordId")
                                 .HasColumnType("uniqueidentifier");
 
-                            b1.Property<string>("City")
-                                .IsRequired()
-                                .HasColumnType("nvarchar(max)");
+                            b1.Property<DateTimeOffset?>("End")
+                                .HasColumnType("datetimeoffset")
+                                .HasColumnName("LeaseEnd");
 
-                            b1.Property<string>("State")
-                                .IsRequired()
-                                .HasColumnType("nvarchar(max)");
+                            b1.Property<DateTimeOffset>("Start")
+                                .HasColumnType("datetimeoffset")
+                                .HasColumnName("LeaseStart");
 
-                            b1.Property<string>("Street")
-                                .IsRequired()
-                                .HasColumnType("nvarchar(max)");
+                            b1.HasKey("LeasingRecordId");
 
-                            b1.Property<string>("ZipCode")
-                                .IsRequired()
-                                .HasColumnType("nvarchar(max)");
-
-                            b1.HasKey("BuildingId");
-
-                            b1.ToTable("Buildings", "Leasing");
+                            b1.ToTable("LeasingRecords", "Leasing");
 
                             b1.WithOwner()
-                                .HasForeignKey("BuildingId");
+                                .HasForeignKey("LeasingRecordId");
                         });
 
-                    b.Navigation("BuildingAddress")
+                    b.OwnsOne("Leasing.Domain.ValueObjects.Money", "MonthlyRent", b1 =>
+                        {
+                            b1.Property<Guid>("LeasingRecordId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<decimal>("Amount")
+                                .HasColumnType("decimal(18,2)")
+                                .HasColumnName("MonthlyRentAmount");
+
+                            b1.Property<string>("Currency")
+                                .IsRequired()
+                                .HasMaxLength(3)
+                                .IsUnicode(false)
+                                .HasColumnType("varchar(3)")
+                                .HasColumnName("MonthlyRentCurrency");
+
+                            b1.HasKey("LeasingRecordId");
+
+                            b1.ToTable("LeasingRecords", "Leasing");
+
+                            b1.WithOwner()
+                                .HasForeignKey("LeasingRecordId");
+                        });
+
+                    b.Navigation("MonthlyRent")
                         .IsRequired();
+
+                    b.Navigation("Owner");
+
+                    b.Navigation("Tenant");
+
+                    b.Navigation("Term")
+                        .IsRequired();
+
+                    b.Navigation("Unit");
+                });
+
+            modelBuilder.Entity("Leasing.Domain.Entities.Owner", b =>
+                {
+                    b.OwnsOne("ApartmentManagementSystem.SharedKernel.ValueObjects.PersonName", "OwnerName", b1 =>
+                        {
+                            b1.Property<Guid>("OwnerId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<string>("FirstName")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<string>("LastName")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.HasKey("OwnerId");
+
+                            b1.ToTable("Owners", "Leasing");
+
+                            b1.WithOwner()
+                                .HasForeignKey("OwnerId");
+                        });
+
+                    b.Navigation("OwnerName")
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Leasing.Domain.Entities.Tenant", b =>
+                {
+                    b.HasOne("Leasing.Domain.Entities.Unit", null)
+                        .WithMany("tenants")
+                        .HasForeignKey("UnitId");
+
+                    b.OwnsOne("ApartmentManagementSystem.SharedKernel.ValueObjects.PersonName", "TenantName", b1 =>
+                        {
+                            b1.Property<Guid>("TenantId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<string>("FirstName")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<string>("LastName")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.HasKey("TenantId");
+
+                            b1.ToTable("Tenants", "Leasing");
+
+                            b1.WithOwner()
+                                .HasForeignKey("TenantId");
+                        });
+
+                    b.Navigation("TenantName")
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Leasing.Domain.Entities.Tenant", b =>
+                {
+                    b.Navigation("LeaseRecords");
                 });
 
             modelBuilder.Entity("Leasing.Domain.Entities.Unit", b =>
                 {
-                    b.HasOne("Leasing.Domain.Entities.Building", "Building")
-                        .WithMany("Units")
-                        .HasForeignKey("BuildingId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Navigation("LeasingHistory");
 
-                    b.Navigation("Building");
-                });
-
-            modelBuilder.Entity("Leasing.Domain.Entities.Building", b =>
-                {
-                    b.Navigation("Units");
+                    b.Navigation("tenants");
                 });
 #pragma warning restore 612, 618
         }

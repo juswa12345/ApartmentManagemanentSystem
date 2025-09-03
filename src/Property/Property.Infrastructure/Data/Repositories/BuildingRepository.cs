@@ -19,9 +19,11 @@ namespace Property.Infrastructure.Data.Repositories
             await _context.Buildings.AddAsync(building);
         }
 
-        public async Task DeleteBuildingAsync(Building building)
+        public Task DeleteBuildingAsync(Building building)
         {
             _context.Buildings.Remove(building);
+
+            return Task.CompletedTask;
         }
 
         public async Task<Building?> GetBuildingByIdAsync(BuildingId buildingId)
@@ -29,6 +31,13 @@ namespace Property.Infrastructure.Data.Repositories
             var building = await _context.Buildings.Include(b => b.Units).FirstOrDefaultAsync();
 
             return building;
+        }
+
+        public Task UpdateBuildingAsync(Building building)
+        {
+            _context.Buildings.Update(building);
+
+            return Task.CompletedTask;
         }
     }
 }

@@ -4,13 +4,15 @@ namespace Property.Infrastructure.Data.Repositories
 {
     public class UnitOfWork : IUnitOfWork
     {
+        private readonly IOwnershipRespository _ownershipRespository;
         private readonly PropertyDBContext _context;
         private readonly IBuildingRepository _buildingRepository;
         private readonly IUnitReposirtory _unitRepository;
-       private readonly IOwnerRepository _ownerRepository;
+        private readonly IOwnerRespository _ownerRepository;
 
-        public UnitOfWork(PropertyDBContext context, IBuildingRepository buildingRepository, IUnitReposirtory unitRepository, IOwnerRepository ownerRepository)
+        public UnitOfWork(IOwnershipRespository ownershipRespository, PropertyDBContext context, IBuildingRepository buildingRepository, IUnitReposirtory unitRepository, IOwnerRespository ownerRepository)
         {
+            _ownershipRespository = ownershipRespository;
             _context = context;
             _buildingRepository = buildingRepository;
             _unitRepository = unitRepository;
@@ -21,7 +23,9 @@ namespace Property.Infrastructure.Data.Repositories
 
         public IUnitReposirtory UnitReposirtory => _unitRepository;
 
-        public IOwnerRepository OwnerRepository => _ownerRepository;
+        public IOwnerRespository OwnerRepository => _ownerRepository;
+
+        public IOwnershipRespository OwnershipRepository => _ownershipRespository;
 
         public async Task SaveChangesAsync(CancellationToken cancellationToken)
         {

@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using FluentResults;
-using Leasing.Application.Commnds;
-using Leasing.Application.Errors;
+using Leasing.Application.Commands;
 using Leasing.Application.Repositories;
 using Leasing.Application.Response;
 using Leasing.Domain.Entities;
@@ -20,21 +19,13 @@ namespace Leasing.Application.CommandHandlers
             _mapper = mapper;
         }
 
-        public async Task<Result<UnitResponse>> AddUnitAsync(Guid id, string unitNumber, int floor, double monthlyRent, int occupancy)
+        public async Task AddUnitAsync(Guid Id, string buildingName, string unitNumber, int floor, double monthlyRent, int occupancy)
         {
-            var building = await _unitOfWork.BuildingRepository.GetBuildingByIdAsync(new BuildingId(id));
 
-            if(building is null)
-            {
-                return Result.Fail(new EntityNotFoundError($"Build with ID: {id} is not Found"));
-            }
-
-            var unit = Unit.Create(building, unitNumber, floor, monthlyRent, occupancy);
+            var unit = Unit.Create(new UnitId(Id), buildingName, unitNumber, floor, monthlyRent, occupancy);
 
             await _unitOfWork.UnitReposirtory.AddUnitAsync(unit);
             await _unitOfWork.SaveChangesAsync(default);
-
-            return Result.Ok(_mapper.Map<UnitResponse>(unit));
         }
 
         public async Task DeleteUnitAsync(Guid id, CancellationToken cancellationToken)

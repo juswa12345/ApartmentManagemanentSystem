@@ -31,7 +31,7 @@ namespace Property.Controller
         [HttpGet("{id}")]
         public async Task<ActionResult<BuildingResponse>> GetBuildingByIdAsync(Guid id)
         {
-            var building = await _buildingQueries.GetBuildingByIdAsync(id);
+            var building = await _buildingCommands.GetBuildingByIdAsync(id);
 
             if (building is null)
                 return NotFound();
@@ -42,7 +42,7 @@ namespace Property.Controller
         [HttpGet]
         public async Task<ActionResult<List<BuildingResponse>>> GetBuildings(Guid id)
         {
-            var buildings = await _buildingQueries.GetBuildingsAsync();
+            var buildings = await _buildingCommands.GetBuildingsAsync();
 
             if (buildings.Count == 0)
                 return NoContent();
@@ -50,22 +50,20 @@ namespace Property.Controller
             return Ok(buildings);
         }
 
-        [HttpPut("{id}")]
-        public async Task<ActionResult<BuildingResponse>> UpdateBuildingAsync(Guid id, UpdateBuildingRequest building)
+        [HttpPut("{id}/update")]
+        public async Task<IActionResult> UpdateBuildingAsync(Guid id, UpdateBuildingRequest building)
         {
-            var result = await _buildingCommands.UpdateBuildingAsync(id, building.BuildingName, building.Street, building.City, building.State, building.ZipCode, building.NumberOfFloors, building.YearBuilt, building.notes);
+            await _buildingCommands.UpdateBuildingAsync(id, building.BuildingName, building.Street, building.City, building.State, building.ZipCode, building.NumberOfFloors, building.YearBuilt, building.notes);
 
-            if(result == null) 
-                return NotFound();
-
-
-            var newBuilding = await _buildingQueries.UpdateBuildAsync(result);
-
-            if (newBuilding == null)
-                return NotFound();
-
-            return Ok(newBuilding);
+            return Ok();
         }
 
+        [HttpDelete("{id}/delete")]
+        public async Task<IActionResult> DeleteBuildingAsync(Guid id)
+        {
+            await _buildingCommands.DeleteBuildingAsync(id, default);
+
+            return Ok();
+        }
     }
 }

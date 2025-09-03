@@ -15,26 +15,23 @@ namespace Identity.Application.CommandHandlers
         private readonly IMapper _mapper;
         private readonly IPasswordService _passwordService;
         private readonly ITokenService _tokenService;
-        private readonly IUserRepository _userRepository;
-        private readonly IDomainEventPublisher _publisher;
+        private readonly IUnitOfWork _unitOfWork;
 
         public AuthenticationCommands(
             IMapper mapper,
             IPasswordService passwordService,
             ITokenService tokenService,
-            IUserRepository userRepository,
-            IDomainEventPublisher publisher)
+            IUnitOfWork unitOfWork)
         {
             _tokenService = tokenService;
-            _userRepository = userRepository;
-            _publisher = publisher;
+            _unitOfWork = unitOfWork;
             _mapper = mapper;
             _passwordService = passwordService;
         }
 
         public async Task<AuthenticationResponse> Login(string email, string password)
         {
-            User? existingUser = await _userRepository.GetByEmailAsync(email);
+            User? existingUser = await _unitOfWork.UserRepository.GetByEmailAsync(email);
             if (existingUser is null)
             {
                 return new AuthenticationResponse
@@ -64,7 +61,7 @@ namespace Identity.Application.CommandHandlers
         public async Task<AuthenticationResponse> RegisterAsync(string firstName, string lastName, string email, string password, List<string> roleId)
         {
             //Check if user already exists
-            User? existingUser = await _userRepository.GetByEmailAsync(email);
+            User? existingUser = await _unitOfWork.UserRepository.GetByEmailAsync(email);
             if (existingUser is not null)
             {
                 return new AuthenticationResponse
@@ -77,9 +74,9 @@ namespace Identity.Application.CommandHandlers
 
             //Add to Database
             User user = User.Create(firstName, lastName, email, passwordHash, roleId);
-            await _userRepository.AddAsync(user);
+            await _unitOfWork.UserRepository.AddAsync(user);
 
-            await _userRepository.SaveChangesAsync(default);
+            await _unitOfWork.SaveChangesAsync(default);
 
             //Token Generation
             string accessToken = _tokenService.GenerateToken(user);

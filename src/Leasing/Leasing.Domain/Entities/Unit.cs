@@ -1,50 +1,73 @@
-﻿using Leasing.Domain.Enums;
+﻿using ApartmentManagementSystem.SharedKernel.Enums;
 using Leasing.Domain.ValueObjects;
-using System.Diagnostics;
 
 namespace Leasing.Domain.Entities
 {
     public class Unit
     {
         public UnitId Id { get; private set; }
-        public BuildingId BuildingId { get; private set; } = default!;
-        public Building Building { get; private set; } = default!;
+        public string BuildingName { get; private set; }
         public string UnitNumber { get; private set; }
         public int Floor { get; private set; }
         public UnitStatus Status { get; private set; } = UnitStatus.Vacant;
         public double? MonthlyRent { get; private set; }     
         public int? OccupancyLimit { get; private set; }
-
+        public int CurrentOccupancy { get; set; } = 0;
         public DateTimeOffset? CreatedAt { get; private set; } 
-        public DateTimeOffset? UpdatedAt { get; private set; } 
+        public DateTimeOffset? UpdatedAt { get; private set; }
+        public List<LeasingRecord> LeasingHistory { get; private set; } = [];
+        public List<Tenant> tenants { get; private set; } = [];
 
-        private  Unit(UnitId id, string unitNumber, int floor)
+        private  Unit(UnitId id, string buildingName, string unitNumber, int floor)
         {
             Id = id;
-            UnitNumber = string.IsNullOrWhiteSpace(unitNumber) ? throw new ArgumentException("Unit number is required.") : unitNumber.Trim();
+            UnitNumber = unitNumber;
             Floor = floor;
+            BuildingName = buildingName;
         }
 
-        public static Unit Create(Building building, string unitNumber, int floor, double monthlyRent, int occupancy)
+        public void IncreaseOccupancy()
         {
-            var unit = new Unit(new UnitId(Guid.NewGuid()), unitNumber, floor)
+            if (CurrentOccupancy > OccupancyLimit)
+            {
+                throw new InvalidOperationException($"Occupancy limit of {OccupancyLimit.Value} exceeded.");
+            }
+
+            CurrentOccupancy++;
+        }
+
+        public void DecreaseOccupancy()
+        {
+            if (CurrentOccupancy <= 0)
+            {
+                throw new InvalidOperationException("Current occupancy is already zero.");
+            }
+            CurrentOccupancy--;
+        }
+
+        public void SetUnitStatus(UnitStatus unitStatus)
+        {
+            Status = unitStatus;
+        }
+
+
+        public static Unit Create(UnitId Id, string buildingName, string unitNumber, int floor, double monthlyRent, int occupancy)
+        {
+            var unit = new Unit(Id, buildingName, unitNumber, floor)
             {
                 CreatedAt = DateTimeOffset.UtcNow,
                 MonthlyRent = monthlyRent,
                 OccupancyLimit = occupancy,
-                Building = building,
-                BuildingId = building.Id
+
             };
 
             return unit;
         }
 
-        public void Update(
-            BuildingId buildingId, string unitNumber, int floor,
+        public void Update(string unitNumber, int floor,
             UnitStatus? status = null, double? monthlyRent = null, 
             int? occupancyLimit = null)
         {
-            BuildingId = buildingId;
             UnitNumber = string.IsNullOrWhiteSpace(unitNumber) ? throw new ArgumentException("Unit number is required.") : unitNumber.Trim();
             Floor = floor;
 
@@ -55,8 +78,6 @@ namespace Leasing.Domain.Entities
 
             Touch();
         }
-
-        public void ChangeStatus(UnitStatus newStatus) { Status = newStatus; Touch(); }
         public void Touch() => UpdatedAt = DateTimeOffset.UtcNow;
     }
 }

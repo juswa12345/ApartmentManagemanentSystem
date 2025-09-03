@@ -9,6 +9,4 @@ public interface IUserRepository
     Task<User?> GetByEmailAsync(string email);
     Task<User?> GetByIdAsync(UserId id);
     Task<List<User>> GetUsersAsync();
-
-    Task SaveChangesAsync(CancellationToken cancellationToken);
 }

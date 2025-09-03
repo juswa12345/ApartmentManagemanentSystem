@@ -26,8 +26,7 @@ namespace Leasing.Infrastructure.Data.Repositories
 
         public Task<Unit?> GetUnitByIdAsync(UnitId unitId)
         {
-            var unit = _context.Units.Include(u => u.Building).FirstOrDefaultAsync();
-
+            var unit = _context.Units.Where(u => u.Id == unitId).FirstOrDefaultAsync();
 
             return unit;
 

@@ -1,5 +1,5 @@
 ﻿using Leasing.Application.CommandHandlers;
-using Leasing.Application.Commnds;
+using Leasing.Application.Commands;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Leasing.Application
@@ -8,8 +8,10 @@ namespace Leasing.Application
     {
         public static IServiceCollection AddLeasingApplication(this IServiceCollection services)
         {
-            services.AddScoped<IBuildingCommands, BuildingCommands>();
             services.AddScoped<IUnitCommands, UnitCommands>();
+            services.AddScoped<ITenantCommands, TenantCommands>();
+            services.AddScoped<IOwnerCommands, OwnerCommands>();
+            services.AddScoped<ILeasingCommands, LeasingCommands>();
 
             return services;
         }

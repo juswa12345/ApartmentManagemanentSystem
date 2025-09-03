@@ -11,6 +11,7 @@ namespace Property.Application
             services.AddScoped<IBuildingCommands, BuildingCommands>();
             services.AddScoped<IUnitCommands, UnitCommands>();
             services.AddScoped<IOwnerCommands, OwnerCommands>();
+            services.AddScoped<IPropertyOwnershipCommands, PropertyOwnershipCommands>();
 
             return services;
         }
