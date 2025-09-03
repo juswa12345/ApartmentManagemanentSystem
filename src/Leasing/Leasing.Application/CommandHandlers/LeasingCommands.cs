@@ -27,7 +27,7 @@ namespace Leasing.Application.CommandHandlers
                 throw new Exception("Tenant not found");
 
             Unit? unit = await _unitOfWork.UnitReposirtory.GetUnitByIdAsync(new UnitId(unitId));
-
+              
 
             if (unit is null)
                 throw new Exception("Unit not found");
